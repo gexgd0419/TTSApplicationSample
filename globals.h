@@ -3,7 +3,7 @@
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 //
-// Copyright © Microsoft Corporation. All rights reserved
+// Copyright Â© Microsoft Corporation. All rights reserved
 
 #ifndef __TTSAPP_GLOBALS_H__
 #define __TTSAPP_GLOBALS_H__
@@ -16,10 +16,12 @@
 extern int                  g_iBmp;
 extern HIMAGELIST           g_hListBmp;
 extern const int            g_aMapVisemeToImage[22];
+extern const LPCTSTR       g_aMapVisemeToText[22];
 
 // Output formats
 extern const SPSTREAMFORMAT g_aOutputFormat[NUM_OUTPUTFORMATS];
 extern TCHAR*               g_aszOutputFormat[NUM_OUTPUTFORMATS];
+extern const int g_OutputKHz[];
 
   
 #endif // __TTSAPP_GLOBALS_H__

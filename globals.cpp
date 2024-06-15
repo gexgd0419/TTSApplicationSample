@@ -3,7 +3,7 @@
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 //
-// Copyright © Microsoft Corporation. All rights reserved
+// Copyright Â© Microsoft Corporation. All rights reserved
 
 #include "globals.h"
 
@@ -33,6 +33,28 @@ const int           g_aMapVisemeToImage[22] = { 0,  // SP_VISEME_0 = 0,    // Si
                                                 9,  // SP_VISEME_20,       // k, g, NG
                                                 1 };// SP_VISEME_21,       // p, b, m
 
+const LPCTSTR       g_aMapVisemeToText[22] = {  _T("_"),
+                                                _T("ae/ax/ah"),
+                                                _T("aa"),
+                                                _T("ao"),
+                                                _T("ey/eh/uh"),
+                                                _T("er"),
+                                                _T("y/iy/ih/ix"),
+                                                _T("w/uw"),
+                                                _T("ow"),
+                                                _T("aw"),
+                                                _T("oy"),
+                                                _T("ay"),
+                                                _T("h"),
+                                                _T("r"),
+                                                _T("l"),
+                                                _T("s/z"),
+                                                _T("sh/ch/jh/zh"),
+                                                _T("th/dh"),
+                                                _T("f/v"),
+                                                _T("d/t/n"),
+                                                _T("k/g/ng"),
+                                                _T("p/b/m") };
 
 // Output formats
 const SPSTREAMFORMAT g_aOutputFormat[NUM_OUTPUTFORMATS] = {SPSF_8kHz8BitMono,     
@@ -108,6 +130,8 @@ TCHAR* g_aszOutputFormat[NUM_OUTPUTFORMATS] = {_T("8kHz 8 Bit Mono"),
                                                 _T("48kHz 8 Bit Stereo"),
                                                 _T("48kHz 16 Bit Mono"),
                                                 _T("48kHz 16 Bit Stereo")};
+
+const int g_OutputKHz[] = { 8, 11, 12, 16, 22, 24, 32, 44, 48 };
 
 // ITextServices interface guid
 const IID IID_ITextServices = {0X8D33F740,0XCF58,0x11ce,{0XA8,0X9D,0X00,0XAA,0X00,0X6C,0XAD,0XC5}};

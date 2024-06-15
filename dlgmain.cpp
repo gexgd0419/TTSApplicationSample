@@ -3,7 +3,7 @@
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 //
-// Copyright © Microsoft Corporation. All rights reserved
+// Copyright Â© Microsoft Corporation. All rights reserved
 
 /////////////////////////////////////////////////////////////////////////
 //  DlgMain.CPP
@@ -170,6 +170,24 @@ HIMAGELIST CTTSApp::InitImageList()
     return hListBmp;
 }
 
+
+CString CTTSApp::GetSpeakText()
+{
+    CComPtr<ISpObjectToken> pToken = SpGetCurSelComboBoxToken(GetDlgItem(m_hWnd, IDC_COMBO_VOICES));
+    CString text;
+    if (pToken)
+    {
+        LANGID lang;
+        SpGetLanguageFromToken(pToken, &lang);
+        if (text.LoadString(nullptr, IDS_SPEAK_TEXT, PRIMARYLANGID(lang)))
+        {
+            return text;
+        }
+    }
+    text.LoadString(nullptr, IDS_SPEAK_TEXT, LANG_ENGLISH);
+    return text;
+}
+
 /////////////////////////////////////////////////////////////////
 BOOL CTTSApp::OnInitDialog( HWND hWnd )
 /////////////////////////////////////////////////////////////////
@@ -179,9 +197,6 @@ BOOL CTTSApp::OnInitDialog( HWND hWnd )
     // Store this as the "Main Dialog"
     m_hWnd  = hWnd;
 
-    // Add some default text to the main edit control
-    SetDlgItemText( hWnd, IDE_EDITBOX, _T("Enter text you wish spoken here.") );
-
     // Set the event mask in the rich edit control so that it notifies us when text is
     // changed in the control
     SendMessage( GetDlgItem( hWnd, IDE_EDITBOX ), EM_SETEVENTMASK, 0, ENM_CHANGE );
@@ -190,8 +205,11 @@ BOOL CTTSApp::OnInitDialog( HWND hWnd )
     int i;
     for( i=0; i<NUM_OUTPUTFORMATS; i++ )
     {
+        CString format;
+        format.Format(IDS_FMT_8BIT_MONO + i%4, g_OutputKHz[i/4]);
+
         SendDlgItemMessage( hWnd, IDC_COMBO_OUTPUT, CB_ADDSTRING, 0,
-                    (LPARAM)g_aszOutputFormat[i] );
+                    (LPARAM)(LPCTSTR)format );
 
         SendDlgItemMessage( hWnd, IDC_COMBO_OUTPUT, CB_SETITEMDATA, i, 
                     (LPARAM)g_aOutputFormat[i] );
@@ -236,6 +254,10 @@ BOOL CTTSApp::OnInitDialog( HWND hWnd )
     {
         hr = SpInitTokenComboBox( GetDlgItem( hWnd, IDC_COMBO_VOICES ), SPCAT_VOICES );
     }
+
+    // Add some default text to the main edit control
+    SetDlgItemText(hWnd, IDE_EDITBOX, GetSpeakText());
+
     
     if ( SUCCEEDED( hr ) )
     {
@@ -288,7 +310,7 @@ BOOL CTTSApp::OnInitDialog( HWND hWnd )
     // If any SAPI initialization failed, shut down!
     if( FAILED( hr ) )
     {
-        MessageBox( NULL, _T("Error initializing speech objects. Shutting down."), _T("Error"), MB_OK );
+        MessageBox( NULL, CString(MAKEINTRESOURCE(IDS_SPEECH_OBJ_INIT_FAILED)), NULL, MB_OK );
         SendMessage( hWnd, WM_CLOSE, 0, 0 );
         return(FALSE);
         
@@ -312,7 +334,7 @@ BOOL CTTSApp::OnInitDialog( HWND hWnd )
 
         if ( !m_hChildWnd )
         {
-            MessageBox( hWnd, _T("Error initializing speech objects. Shutting down."), _T("Error"), MB_OK );
+            MessageBox( hWnd, CString(MAKEINTRESOURCE(IDS_SPEECH_OBJ_INIT_FAILED)), NULL, MB_OK );
             SendMessage( hWnd, WM_CLOSE, 0, 0 );
             return(FALSE);
             
@@ -341,10 +363,10 @@ void CTTSApp::Stop()
 
     if( FAILED( hr ) )
     {
-        TTSAppStatusMessage( m_hWnd, _T("Stop error\r\n") );
+        TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STOP_ERROR)));
     }
 
-    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), _T("Pause") );
+    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), CString(MAKEINTRESOURCE(IDS_BTN_PAUSE)));
     m_bPause = FALSE;
     m_bStop = TRUE;             
     // Mouth closed
@@ -391,7 +413,7 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
 
             if( FAILED( hr ) )
             {
-                TTSAppStatusMessage( m_hWnd, _T("Error changing voices\r\n") );
+                TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_ERROR_CHANGING_VOICE)));
             }
 
             break;
@@ -454,15 +476,15 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
             {
                 if( !m_bPause )
                 {
-                    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), _T("Resume") );
+                    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), CString(MAKEINTRESOURCE(IDS_BTN_RESUME)));
                     // Pause the voice...
                     m_cpVoice->Pause();
                     m_bPause = TRUE;
-                    TTSAppStatusMessage( m_hWnd, _T("Pause\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STAT_PAUSE)));
                 }
                 else
                 {
-                    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), _T("Pause") );
+                    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), CString(MAKEINTRESOURCE(IDS_BTN_PAUSE)));
                     m_cpVoice->Resume();
                     m_bPause = FALSE;
                 }
@@ -471,7 +493,7 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
             break;
 
         case IDB_STOP:
-            TTSAppStatusMessage( m_hWnd, _T("Stop\r\n") );
+            TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STAT_STOP)));
             // Set the global audio state to stop
             Stop();
             SetFocus( hwndEdit );
@@ -486,12 +508,12 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
                 WCHAR szGarbage[] = L"Sentence";
                 if ( fSuccess )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Skip\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STAT_SKIP)));
                     m_cpVoice->Skip( szGarbage, SkipNum, &ulGarbage );
                 }
                 else
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Skip failed\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_SKIP_FAILED)));
                 }
                 break;
             }
@@ -525,19 +547,19 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
 
                 if( FAILED( hr ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Speak error\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_SPEAK_ERROR)));
                 }
             }
             break;
 
         // Reset all values to defaults
         case IDB_RESET:
-            TTSAppStatusMessage( m_hWnd, _T("Reset\r\n") );
+            TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STAT_RESET)));
             SendDlgItemMessage( m_hWnd, IDC_VOLUME_SLIDER, TBM_SETPOS, TRUE, m_DefaultVolume );
             SendDlgItemMessage( m_hWnd, IDC_RATE_SLIDER, TBM_SETPOS, TRUE, m_DefaultRate );
             SendDlgItemMessage( m_hWnd, IDC_SAVETOWAV, BM_SETCHECK, BST_UNCHECKED, 0 );
             SendDlgItemMessage( m_hWnd, IDC_EVENTS, BM_SETCHECK, BST_UNCHECKED, 0 );
-            SetDlgItemText( m_hWnd, IDE_EDITBOX, _T("Enter text you wish spoken here.") );
+            SetDlgItemText( m_hWnd, IDE_EDITBOX, GetSpeakText());
 
             // reset output format
             SendDlgItemMessage( m_hWnd, IDC_COMBO_OUTPUT, CB_SETCURSEL, m_DefaultFormatIndex, 0 );
@@ -575,7 +597,7 @@ void CTTSApp::MainHandleCommand( int id, HWND hWndControl, UINT codeNotify )
 
                 if( FAILED( hr ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Format rejected\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_FORMAT_REJECTED)));
                 }
 
                 EnableSpeakButtons( SUCCEEDED( hr ) );
@@ -663,7 +685,7 @@ void CTTSApp::HandleSpeak()
     // Get handle to the main edit box
     hwndEdit = GetDlgItem( m_hWnd, IDE_EDITBOX );
 
-    TTSAppStatusMessage( m_hWnd, _T("Speak\r\n") );
+    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STAT_SPEAK)));
     SetFocus( hwndEdit );
     m_bStop = FALSE;
     
@@ -695,18 +717,18 @@ void CTTSApp::HandleSpeak()
 
         if( FAILED( hr ) )
         {
-            TTSAppStatusMessage( m_hWnd, _T("Speak error\r\n") );
+            TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_SPEAK_ERROR)));
         }
     }
     m_bPause = FALSE;
-    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), _T("Pause") );
+    SetWindowText( GetDlgItem( m_hWnd, IDB_PAUSE ), CString(MAKEINTRESOURCE(IDS_BTN_PAUSE)));
     SetFocus( hwndEdit );
     // Set state to run
     hr = m_cpVoice->Resume();            
 
     if( FAILED( hr ) )
     {
-        TTSAppStatusMessage( m_hWnd, _T("Speak error\r\n") );
+        TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_SPEAK_ERROR)));
     }
 }
 
@@ -734,7 +756,7 @@ void CTTSApp::MainHandleSynthEvent()
             case SPEI_START_INPUT_STREAM:
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("StartStream event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_STARTSTREAM_EVT)));
                 }
                 break; 
 
@@ -750,14 +772,14 @@ void CTTSApp::MainHandleSynthEvent()
                 InvalidateRect( m_hChildWnd, NULL, FALSE );
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("EndStream event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_ENDSTREAM_EVT)));
                 }
                 break;     
                 
             case SPEI_VOICE_CHANGE:
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Voicechange event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_VOICECHANGE_EVT)));
                 }
                 break;
 
@@ -766,7 +788,8 @@ void CTTSApp::MainHandleSynthEvent()
                 {
                     // Get the string associated with the bookmark
                     // and add the null terminator.
-                    TCHAR szBuff2[MAX_PATH] = _T("Bookmark event: ");
+                    TCHAR szBuff2[MAX_PATH];
+                    wcscpy_s(szBuff2, CString(MAKEINTRESOURCE(IDS_BOOKMARK_EVT)));
 
                     size_t cEventString = wcslen( event.String() ) + 1;
                     WCHAR *pwszEventString = new WCHAR[ cEventString ];
@@ -786,7 +809,7 @@ void CTTSApp::MainHandleSynthEvent()
                 hr = m_cpVoice->GetStatus( &Stat, NULL );
                 if( FAILED( hr ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Voice GetStatus error\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_VOICE_GETSTAT_ERROR)));
                 }
 
                 // Highlight word
@@ -796,14 +819,27 @@ void CTTSApp::MainHandleSynthEvent()
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
                     
-                    TTSAppStatusMessage( m_hWnd, _T("Wordboundary event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_WORDBOUNDARY_EVT)));
                 }
                 break;
 
             case SPEI_PHONEME:
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Phoneme event\r\n") );
+                    CComPtr<ISpPhoneConverter> pPhoneConverter;
+                    CComPtr<ISpObjectToken> pVoiceToken;
+                    LANGID lang = 0;
+                    SPPHONEID ids[] = { event.Phoneme(), 0 };
+                    WCHAR phoneme[32] = { 0 };
+                    if (SUCCEEDED(m_cpVoice->GetVoice(&pVoiceToken))
+                        && SUCCEEDED(SpGetLanguageFromToken(pVoiceToken, &lang))
+                        && SUCCEEDED(SpCreatePhoneConverter(lang, nullptr, nullptr, &pPhoneConverter)))
+                    {
+                        pPhoneConverter->IdToPhone(ids, phoneme);
+                    }
+                    CString msg;
+                    msg.Format(IDS_PHONEME_EVT, phoneme);
+                    TTSAppStatusMessage( m_hWnd,msg );
                 }
                 break;
 
@@ -815,14 +851,15 @@ void CTTSApp::MainHandleSynthEvent()
                 InvalidateRect( m_hChildWnd, NULL, FALSE );
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Viseme event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_VISEME_EVT))
+                        + g_aMapVisemeToText[event.Viseme()] + _T("\r\n"));
                 }
                 break;
 
             case SPEI_SENTENCE_BOUNDARY:
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Sentence event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_SENTENCE_EVT)));
                 }
                 break;
 
@@ -830,7 +867,7 @@ void CTTSApp::MainHandleSynthEvent()
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
                     WCHAR wszBuff[MAX_PATH];
-                    swprintf_s(wszBuff, _countof(wszBuff), L"Audio level: %d\r\n", (ULONG)event.wParam);
+                    swprintf_s(wszBuff, _countof(wszBuff), CString(MAKEINTRESOURCE(IDS_AUDIO_LEVEL_EVT)), (ULONG)event.wParam);
                     TTSAppStatusMessage( m_hWnd, CW2T(wszBuff) );
                 }
                 break;
@@ -838,12 +875,12 @@ void CTTSApp::MainHandleSynthEvent()
             case SPEI_TTS_PRIVATE:
                 if( IsDlgButtonChecked( m_hWnd, IDC_EVENTS ) )
                 {
-                    TTSAppStatusMessage( m_hWnd, _T("Private engine event\r\n") );
+                    TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_PRIVATE_EVT)));
                 }
                 break;
 
             default:
-                TTSAppStatusMessage( m_hWnd, _T("Unknown message\r\n") );
+                TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_UNKNOWN_MESSAGE)));
                 break;
         }
     }
@@ -875,7 +912,7 @@ void CTTSApp::HandleScroll( HWND hCtl )
     
     if( FAILED( hr ) )
     {
-        TTSAppStatusMessage( m_hWnd, _T("Error setting volume / rate\r\n") );
+        TTSAppStatusMessage( m_hWnd, CString(MAKEINTRESOURCE(IDS_ERROR_SETTING_VOL_RATE)));
     }
 
     return;
@@ -1148,17 +1185,30 @@ HRESULT CTTSApp::ReadTheFile( LPCTSTR szFileName, BOOL* bIsUnicode, __deref_out 
                 }
 
             }           
-            else  // MBCS source
+            else  // UTF-8 or MBCS source
             {
                 char*   pszABuff = new char [dwSize+1];
 
-                *bIsUnicode = FALSE;
                 SetFilePointer( hFile, NULL, NULL, FILE_BEGIN );
                 if( ReadFile( hFile, pszABuff, dwSize, &dwBytesRead, NULL ) )
                 {
                     pszABuff[dwSize] = NULL;
-                    *ppszwBuff = new WCHAR [dwSize+1];
-                    ::MultiByteToWideChar( CP_ACP, 0, pszABuff, -1, *ppszwBuff, dwSize + 1 );
+
+                    // First try UTF-8, fail on unrecognized chars
+                    int sizeNeeded = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, pszABuff, -1, NULL, 0);
+                    if (sizeNeeded > 0)  // Is UTF-8
+                    {
+                        *ppszwBuff = new WCHAR[sizeNeeded];
+                        ::MultiByteToWideChar(CP_UTF8, 0, pszABuff, -1, *ppszwBuff, sizeNeeded);
+                        *bIsUnicode = TRUE;
+                    }
+                    else  // Not UTF-8, try MBCS
+                    {
+                        sizeNeeded = ::MultiByteToWideChar(CP_ACP, 0, pszABuff, -1, NULL, 0);
+                        *ppszwBuff = new WCHAR[sizeNeeded];
+                        ::MultiByteToWideChar(CP_ACP, 0, pszABuff, -1, *ppszwBuff, sizeNeeded);
+                        *bIsUnicode = FALSE;
+                    }
                 }
                 else
                 {
@@ -1247,14 +1297,29 @@ inline void TTSAppStatusMessage( HWND hWnd, LPCTSTR szMessage )
     // to the debug window since it can only hold 4096 characters.
     if( i == 100 )
     {
-        _tcscpy_s( szDebugText, _countof(szDebugText), _T("") );
-        i = 0;
+        // Changed; only remove the oldest line
+        LPTSTR pSecondLine = _tcschr(szDebugText, '\n');
+        if (pSecondLine)
+        {
+            pSecondLine++;
+            memmove(szDebugText, pSecondLine, MAX_SIZE - (pSecondLine - szDebugText));
+            i--;
+        }
+        else
+        {
+            _tcscpy_s(szDebugText, _countof(szDebugText), _T(""));
+            i = 0;
+        }
     }
     // Attach the new message to the ongoing list of messages
     _tcscat_s( szDebugText, _countof(szDebugText), szMessage );
+
+    HWND hCtl = GetDlgItem(hWnd, IDC_DEBUG);
+    SetWindowRedraw(hCtl, FALSE);
     SetDlgItemText( hWnd, IDC_DEBUG, szDebugText );
 
     SendDlgItemMessage( hWnd, IDC_DEBUG, EM_LINESCROLL, 0, i );
+    SetWindowRedraw(hCtl, TRUE);
 
     i++;
 

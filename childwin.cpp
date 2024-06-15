@@ -3,7 +3,7 @@
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 //
-// Copyright © Microsoft Corporation. All rights reserved
+// Copyright Â© Microsoft Corporation. All rights reserved
 
 /////////////////////////////////////////////////////////////////////////
 //  ChildWin.CPP

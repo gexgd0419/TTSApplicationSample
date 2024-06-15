@@ -26,7 +26,7 @@ BEGIN
             VALUE "FileDescription", "TtsApplication Sample\0"
             VALUE "FileVersion", "1, 0, 0, 1\0"
             VALUE "InternalName", "TtsApplication\0"
-            VALUE "LegalCopyright", "Copyright © Microsoft Corporation. All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright Â© Microsoft Corporation. All rights reserved.\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "TtsApplication.exe\0"
             VALUE "PrivateBuild", "\0"

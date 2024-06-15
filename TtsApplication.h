@@ -3,13 +3,14 @@
 // THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
 // PARTICULAR PURPOSE.
 //
-// Copyright © Microsoft Corporation. All rights reserved
+// Copyright Â© Microsoft Corporation. All rights reserved
 
 #ifndef _INC_TTSAPP
 #define _INC_TTSAPP
 
 #include <windows.h>        // System includes
 #include <atlbase.h>		// ATL
+#include <atlstr.h>
 #include <windowsx.h>
 #include <commctrl.h>		// Common controls
 #include <commdlg.h>
@@ -82,6 +83,8 @@ public:
     BOOL        CallOpenFileDialog( __in LPTSTR szFileName, LPCTSTR szFilter );
     BOOL        CallSaveFileDialog( __in LPTSTR szFileName, LPCTSTR szFilter );
     HIMAGELIST  InitImageList();
+
+    CString GetSpeakText();
 
 //
 //  Private methods
