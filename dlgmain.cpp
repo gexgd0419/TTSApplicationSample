@@ -184,7 +184,7 @@ CString CTTSApp::GetSpeakText()
             return text;
         }
     }
-    text.LoadString(nullptr, IDS_SPEAK_TEXT, LANG_ENGLISH);
+    text.LoadString(nullptr, IDS_SPEAK_TEXT, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
     return text;
 }
 

@@ -15,6 +15,62 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// 非特定语言 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICON             ICON                    "res\\appicon.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_MICFULL             BITMAP                  "res\\mic.bmp"
+
+IDB_MICEYESCLO          BITMAP                  "res\\mic eyes closed.bmp"
+
+IDB_MICEYESNAR          BITMAP                  "res\\mic_eyes_narrow.bmp"
+
+IDB_MICMOUTH10          BITMAP                  "res\\mic_mouth_10.bmp"
+
+IDB_MICMOUTH11          BITMAP                  "res\\mic_mouth_11.bmp"
+
+IDB_MICMOUTH12          BITMAP                  "res\\mic_mouth_12.bmp"
+
+IDB_MICMOUTH13          BITMAP                  "res\\mic_mouth_13.bmp"
+
+IDB_MICMOUTH2           BITMAP                  "res\\mic_mouth_2.bmp"
+
+IDB_MICMOUTH3           BITMAP                  "res\\mic_mouth_3.bmp"
+
+IDB_MICMOUTH4           BITMAP                  "res\\mic_mouth_4.bmp"
+
+IDB_MICMOUTH5           BITMAP                  "res\\mic_mouth_5.bmp"
+
+IDB_MICMOUTH6           BITMAP                  "res\\mic_mouth_6.bmp"
+
+IDB_MICMOUTH7           BITMAP                  "res\\mic_mouth_7.bmp"
+
+IDB_MICMOUTH8           BITMAP                  "res\\mic_mouth_8.bmp"
+
+IDB_MICMOUTH9           BITMAP                  "res\\mic_mouth_9.bmp"
+
+#endif    // 非特定语言 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // 中文(简体) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
@@ -152,10 +208,10 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// 英语(中性) resources
+// 英语(美国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -246,6 +302,34 @@ BEGIN
 END
 
 
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""version.rc2""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
@@ -303,90 +387,6 @@ BEGIN
     IDS_FMT_16BIT_MONO      "%dkHz 16 Bit Mono"
     IDS_FMT_16BIT_STEREO    "%dkHz 16 Bit Stereo"
 END
-
-#endif    // 英语(中性) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// 英语(美国) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_APPICON             ICON                    "res\\appicon.ico"
-
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE
-BEGIN
-"#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
-"#include ""windows.h""\r\n"
-"#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-"\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "#include ""version.rc2""\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDB_MICFULL             BITMAP                  "res\\mic.bmp"
-
-IDB_MICEYESCLO          BITMAP                  "res\\mic eyes closed.bmp"
-
-IDB_MICEYESNAR          BITMAP                  "res\\mic_eyes_narrow.bmp"
-
-IDB_MICMOUTH10          BITMAP                  "res\\mic_mouth_10.bmp"
-
-IDB_MICMOUTH11          BITMAP                  "res\\mic_mouth_11.bmp"
-
-IDB_MICMOUTH12          BITMAP                  "res\\mic_mouth_12.bmp"
-
-IDB_MICMOUTH13          BITMAP                  "res\\mic_mouth_13.bmp"
-
-IDB_MICMOUTH2           BITMAP                  "res\\mic_mouth_2.bmp"
-
-IDB_MICMOUTH3           BITMAP                  "res\\mic_mouth_3.bmp"
-
-IDB_MICMOUTH4           BITMAP                  "res\\mic_mouth_4.bmp"
-
-IDB_MICMOUTH5           BITMAP                  "res\\mic_mouth_5.bmp"
-
-IDB_MICMOUTH6           BITMAP                  "res\\mic_mouth_6.bmp"
-
-IDB_MICMOUTH7           BITMAP                  "res\\mic_mouth_7.bmp"
-
-IDB_MICMOUTH8           BITMAP                  "res\\mic_mouth_8.bmp"
-
-IDB_MICMOUTH9           BITMAP                  "res\\mic_mouth_9.bmp"
 
 #endif    // 英语(美国) resources
 /////////////////////////////////////////////////////////////////////////////
