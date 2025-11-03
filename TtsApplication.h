@@ -25,6 +25,8 @@
 #include <sapi.h>           // SAPI includes
 #include <sphelper.h>
 #include <spuihelp.h>
+#include <string>
+#include "TtsCli.h"
 
 // Disable the false warnings caused by the wrong definitions of SetWindowLongPtr
 // and GetWindowLongPtr macros.
@@ -49,6 +51,38 @@
 LPARAM CALLBACK ChildWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK About( HWND, UINT, WPARAM, LPARAM );
 
+// Optional: prototype for the SpeakText helper implemented in TtsApplication.cpp
+// Add this if you want to call SpeakText from other translation units.
+void SpeakText(const std::wstring& text,
+               const std::wstring& voice,
+               float rate,
+               int volume,
+               const std::wstring& format);
+
+
+inline std::wstring Utf8ToWstring(const char* utf8Str)
+{
+    if (!utf8Str) return L"";
+
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, nullptr, 0);
+    if (size_needed <= 0)
+        return L"";
+
+    std::wstring wstr(size_needed - 1, L'\0'); // allocate buffer
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, &wstr[0], size_needed);
+
+    return wstr;
+}
+
+// inline std::wstring Utf8ToWstring(const char* str)
+// {
+//     int size_needed = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
+//     std::wstring wstr(size_needed - 1, L'\0');
+//     MultiByteToWideChar(CP_UTF8, 0, str, -1, &wstr[0], size_needed);
+//     return wstr;
+// }
+
+
 // Main Object used by app
 class CTTSApp
 {
@@ -72,6 +106,9 @@ public:
             delete m_pszwFileText;
         }
 	}
+
+
+
 
     // Member Functions
     static LRESULT CALLBACK DlgProcMain (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

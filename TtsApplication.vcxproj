@@ -59,7 +59,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
@@ -264,6 +264,7 @@
     <ClCompile Include="dlgmain.cpp" />
     <ClCompile Include="globals.cpp" />
     <ClCompile Include="TtsApplication.cpp" />
+    <ClCompile Include="TtsCli.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h" />

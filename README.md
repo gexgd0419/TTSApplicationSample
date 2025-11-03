@@ -9,6 +9,13 @@ This version adds:
 - Ability to open UTF-8 text files
 - Ability to enter multiple lines in the text box
 
+- Added very simple CLI to application with abality to speak text, and accept args for type of voice, rate, volume, and format
+
+Example
+'''
+TtsApplication.exe --voice "Microsoft Andrew Online (Natural)" --volume 100 --rate 1.0 "Hello world from CLI"
+'''
+
 Click here to view the original [Readme.txt][4].
 
 [1]: https://github.com/microsoft/Windows-classic-samples/tree/main/Samples/Win7Samples/winui/speech/ttsapplication
