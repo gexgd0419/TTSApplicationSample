@@ -34,93 +34,71 @@
 #include "TtsCli.h"
 #include <vector>
 
+// Speak text using SAPI5, suppressing non-critical errors
 void SpeakText(const std::wstring &text,
-			   const std::wstring &voice,
-			   float rate,
-			   int volume,
-			   const std::wstring & /*format*/)
+               const std::wstring &voice,
+               float rate,
+               int volume,
+               const std::wstring & /*format*/)
 {
-	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-	if (FAILED(hr))
-		throw std::runtime_error("Failed to initialize COM");
+    // Initialize COM in multithreaded mode to avoid STA popups
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE)  // ignore if already initialized differently
+        throw std::runtime_error("Failed to initialize COM");
 
-	CComPtr<ISpVoice> cpVoice;
-	hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
-	if (FAILED(hr))
-	{
-		CoUninitialize();
-		throw std::runtime_error("Failed to create SAPI voice instance");
-	}
+    // Clear any existing COM error info to prevent popups
+    ::SetErrorInfo(0, nullptr);
 
-	// Set voice (if provided)
-	if (!voice.empty() && voice != L"Default")
-	{
-		CComPtr<IEnumSpObjectTokens> cpEnum;
-		hr = SpEnumTokens(SPCAT_VOICES, NULL, NULL, &cpEnum);
-		if (SUCCEEDED(hr) && cpEnum)
-		{
-			while (true)
-			{
-				CComPtr<ISpObjectToken> cpToken;
-				if (cpEnum->Next(1, &cpToken, NULL) != S_OK)
-					break;
+    CComPtr<ISpVoice> cpVoice;
+    hr = cpVoice.CoCreateInstance(CLSID_SpVoice);
+    if (FAILED(hr))
+    {
+        CoUninitialize();
+        throw std::runtime_error("Failed to create SAPI voice instance");
+    }
 
-				CSpDynamicString desc;
-				SpGetDescription(cpToken, &desc);
-				if (desc && wcsstr(desc, voice.c_str()))
-				{
-					cpVoice->SetVoice(cpToken);
-					break;
-				}
-			}
-		}
-	}
+    // Select voice if specified
+    if (!voice.empty() && voice != L"Default")
+    {
+        CComPtr<IEnumSpObjectTokens> cpEnum;
+        hr = SpEnumTokens(SPCAT_VOICES, NULL, NULL, &cpEnum);
+        if (SUCCEEDED(hr) && cpEnum)
+        {
+            while (true)
+            {
+                CComPtr<ISpObjectToken> cpToken;
+                if (cpEnum->Next(1, &cpToken, NULL) != S_OK)
+                    break;
 
-	// Set volume and rate
-	cpVoice->SetVolume(volume);
-	cpVoice->SetRate(static_cast<LONG>((rate - 1.0f) * 10)); // e.g., 1.2 → +2
+                CSpDynamicString desc;
+                SpGetDescription(cpToken, &desc);
+                if (desc && wcsstr(desc, voice.c_str()))
+                {
+                    cpVoice->SetVoice(cpToken);
+                    break;
+                }
+            }
+        }
+    }
 
-	// Format parameter not used for simple playback
+    // Set volume and rate
+    cpVoice->SetVolume(volume);
+    cpVoice->SetRate(static_cast<LONG>((rate - 1.0f) * 10));  // 1.2 → +2
 
-	// Speak text
-	hr = cpVoice->Speak(text.c_str(), SPF_DEFAULT, NULL);
-	if (FAILED(hr))
-	{
-		cpVoice.Release();
-		CoUninitialize();
-		{
-			// Build a more detailed error message for debugging/logging:
-			// - HRESULT value
-			// - truncated text snippet (to avoid huge messages)
-			// - requested voice, rate and volume
-			std::wstring snippet = text;
-			if (snippet.size() > 200)
-				snippet = snippet.substr(0, 200) + L"...";
+    // Speak asynchronously to avoid blocking popups
+    hr = cpVoice->Speak(text.c_str(), SPF_ASYNC | SPF_PURGEBEFORESPEAK, NULL);
 
-			auto toUtf8 = [](const std::wstring &s) -> std::string {
-				if (s.empty()) return std::string();
-				int size = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, nullptr, 0, nullptr, nullptr);
-				if (size <= 0) return std::string();
-				std::string out(size - 1, '\0');
-				WideCharToMultiByte(CP_UTF8, 0, s.c_str(), -1, &out[0], size, nullptr, nullptr);
-				return out;
-			};
+    // Ignore some non-critical HRESULTs
+    if (FAILED(hr) && hr != 0x80045002) // SPERR_NOT_FOUND
+    {
+        cpVoice.Release();
+        CoUninitialize();
+        std::wstring snippet = text.substr(0, 200);
+        throw std::runtime_error("Failed to speak text");
+    }
 
-			std::string snippetUtf8 = toUtf8(snippet);
-			std::string voiceUtf8 = toUtf8(voice);
-
-			std::string msg = "Failed to speak text (HRESULT=" + std::to_string(static_cast<long>(hr)) + ")";
-			msg += " text=\"" + snippetUtf8 + "\"";
-			msg += " voice=\"" + (voiceUtf8.empty() ? "Default" : voiceUtf8) + "\"";
-			msg += " rate=" + std::to_string(rate);
-			msg += " volume=" + std::to_string(volume);
-
-			throw std::runtime_error(msg);
-		}
-	}
-
-	cpVoice.Release();
-	CoUninitialize();
+    cpVoice.Release();
+    CoUninitialize();
 }
 
 // ---------------------------------------------------------------------------
@@ -137,40 +115,38 @@ void SpeakText(const std::wstring &text,
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpszCmdLine, int nCmdShow)
 {
-	int ret = 0;
+    int ret = 0;
 
-	int argc;
-	LPWSTR *argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
-	if (!argvW)
-		return 1;
+    // Parse CLI arguments
+    int argc;
+    LPWSTR *argvW = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if (!argvW) return 1;
 
-	if (argc > 1)
-	{
-		// Convert LPWSTR* to char* (UTF-8) for RunCli
-		std::vector<std::string> argv(argc);
-		std::vector<char *> argvPtrs(argc);
+    if (argc > 1)
+    {
+        std::vector<std::string> argv(argc);
+        std::vector<char *> argvPtrs(argc);
 
-		for (int i = 0; i < argc; ++i)
-		{
-			int size_needed = WideCharToMultiByte(CP_UTF8, 0, argvW[i], -1, nullptr, 0, nullptr, nullptr);
-			if (size_needed > 0)
-			{
-				argv[i].resize(size_needed - 1); // exclude null terminator
-				WideCharToMultiByte(CP_UTF8, 0, argvW[i], -1, &argv[i][0], size_needed, nullptr, nullptr);
-				argvPtrs[i] = &argv[i][0]; // non-const pointer for RunCli
-			}
-			else
-			{
-				argvPtrs[i] = nullptr;
-			}
-		}
+        for (int i = 0; i < argc; ++i)
+        {
+            int size_needed = WideCharToMultiByte(CP_UTF8, 0, argvW[i], -1, nullptr, 0, nullptr, nullptr);
+            if (size_needed > 0)
+            {
+                argv[i].resize(size_needed - 1);
+                WideCharToMultiByte(CP_UTF8, 0, argvW[i], -1, &argv[i][0], size_needed, nullptr, nullptr);
+                argvPtrs[i] = &argv[i][0];
+            }
+            else
+            {
+                argvPtrs[i] = nullptr;
+            }
+        }
 
-		ret = RunCli(argc, argvPtrs.data());
-		LocalFree(argvW);
-		return ret; // exit after CLI
-	}
-
-	LocalFree(argvW);
+        ret = RunCli(argc, argvPtrs.data());
+        LocalFree(argvW);
+        return ret;
+    }
+    LocalFree(argvW);
 
 	// --- Existing GUI code ---
 	HWND hWnd = NULL;
