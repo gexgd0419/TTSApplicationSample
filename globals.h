@@ -20,7 +20,7 @@ extern const LPCTSTR       g_aMapVisemeToText[22];
 
 // Output formats
 extern const SPSTREAMFORMAT g_aOutputFormat[NUM_OUTPUTFORMATS];
-extern TCHAR*               g_aszOutputFormat[NUM_OUTPUTFORMATS];
+extern LPCTSTR              g_aszOutputFormat[NUM_OUTPUTFORMATS];
 extern const int g_OutputKHz[];
 
   

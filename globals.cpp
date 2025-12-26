@@ -94,7 +94,7 @@ const SPSTREAMFORMAT g_aOutputFormat[NUM_OUTPUTFORMATS] = {SPSF_8kHz8BitMono,
                                                 SPSF_48kHz16BitMono,
                                                 SPSF_48kHz16BitStereo};
 
-TCHAR* g_aszOutputFormat[NUM_OUTPUTFORMATS] = {_T("8kHz 8 Bit Mono"),     
+LPCTSTR g_aszOutputFormat[NUM_OUTPUTFORMATS] = {_T("8kHz 8 Bit Mono"),     
                                                 _T("8kHz 8 Bit Stereo"),
                                                 _T("8kHz 16 Bit Mono"),
                                                 _T("8kHz 16 Bit Stereo"),   
